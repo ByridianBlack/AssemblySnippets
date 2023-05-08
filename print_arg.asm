@@ -36,7 +36,8 @@ start:
     mov rdx, rax ; string size
 
     xor rax, rax
-    inc rax
+    inc rax        inc rax
+
 
     syscall
 
