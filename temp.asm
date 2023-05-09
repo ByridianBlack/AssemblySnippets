@@ -20,3 +20,6 @@ exit_routine:
 segment readable
 
 hello  db "Hey Philip", 10
+
+
+4831C048C7C03C0000004831FF48C7C7440000000F05C

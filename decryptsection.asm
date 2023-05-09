@@ -38,7 +38,7 @@ start:
     call decryption_routine
     
     call encrypted_data
-    call exit_routine
+    ; call exit_routine
 
 exit_routine:
     xor rax, rax
