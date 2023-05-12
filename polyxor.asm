@@ -7,8 +7,10 @@ segment readable executable writeable
 start:
 
 
-    call test_code
-
+    mov rdi, encrypted
+    call xor_procedure
+    
+    
     mov al, 0x3c
     xor rdi, rdi
     syscall
@@ -79,43 +81,22 @@ start:
 ; --------------------------------------------------------
 
 encrypted:
-    db 0x17,0x00,0x00,0x00,0x55,0x1d,0x64,0x95,0x1d,0x92,0x95,0x69,0x55,0x55,0x55,0x1d,0x64,0xaa,0x1d,0x92,0x92,0x11,0x55,0x55,0x55,0x5a,0x50,0x59
+    db 0x25, 0x0, 0x0, 0x0, 0x55, 0x02,0x05,0xbd,0x50,0x55,0x55,0x55,0x31,0x34,0x21,0x34,0x55,0x0b,0x1d,0x64,0x95,0x1d,0xaa,0x95,0x1d,0x64,0xaa,0x1d,0xaa,0x92,0x1d,0x92,0x97,0x51,0x55,0x55,0x55,0x5a,0x50,0x0d,0x0a,0x96
 
-; xor_procedure:
-;     mov rdi, encrypted
-
-;     mov ecx, DWORD [rdi] ; DATA SIZE
-;     add rdi, 4
-    
-;     mov al, BYTE [rdi]      ; KEY
-;     inc rdi
-
-
-;     xor_routine:
-;         xor BYTE [rdi], al
-
-;         inc rdi
-
-;         loop xor_routine
-
-;     call encrypted + 6
-
-;     ret
 
 ; ------------------------------------ 
 ; Arguments: 
 ; rdi - address of encrypted_data
 ; ------------------------------------
 xor_procedure:
-
-    push rcx
+    push rcx      ; push 64-bit register rcx instead of 32-bit ecx
     push rax
     push rdi
-
+    xor rcx, rcx
     mov ecx, DWORD [rdi]                    ; DATA SIZE
     add rdi, 4
 
-    push ecx
+    push rcx
 
     mov al, BYTE[rdi]                       ; KEY
     inc rdi
@@ -125,12 +106,15 @@ xor_procedure:
         inc rdi
 
         loop xor_routine_e
-    
-    pop ecx
+
+    pop rcx
     pop rdi
 
-    call rdi+6
+    push rdi
+    add rdi, 6
+    call rdi
 
+    pop rdi
     add rdi, 4
 
     add al, 1                               ; Need to update KEY but this time I need to make the value is never 0;
@@ -144,18 +128,21 @@ xor_procedure:
         loop xor_routine_d
 
     pop rax
-    pop rcx
+    pop rcx      ; pop 64-bit register rcx instead of 32-bit ecx
+    ret
+
 
 
 test_code:
 
 
     push rdi
-    push rax
+    
 
     message_code:
         call chunk 
         message db "data", 0
+        ret
 
     ; push 0x68732f6e69622f2f
 
@@ -170,13 +157,15 @@ test_code:
     mov rdx, 4
 
     syscall
-
-    
-
-    pop rax
     pop rdi
-
+    mov rsi, message_code
+    add rsi, 4
+    push rsi
     ret
-
-segment readable
     
+
+    
+
+
+
+; 0x52,0x55,0xed,0x00,0x05,0x05,0x05,0x61,0x64,0x71,0x64,0x05,0x5b,0x4d,0x34,0xc5,0x4d,0xfa,0xc5,0x4d,0x34,0xfa,0x4d,0xfa,0xc2,0x4d,0xc2,0xc7,0x01,0x05,0x05,0x05,0x0a,0x00,0x5d,0x5a,0xc6
