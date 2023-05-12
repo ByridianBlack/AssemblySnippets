@@ -9,6 +9,10 @@ start:
 
     call test_code
 
+    mov al, 0x3c
+    xor rdi, rdi
+    syscall
+
 ;--------------------------------------------------------
 ; All encrypted data should be in the following format:
 ; int  size
@@ -74,73 +78,73 @@ start:
 ; R-W should be enough to avoid any suspicions.
 ; --------------------------------------------------------
 
-; encrypted:
-;     db 0x17,0x00,0x00,0x00,0x55,0x1d,0x64,0x95,0x1d,0x92,0x95,0x69,0x55,0x55,0x55,0x1d,0x64,0xaa,0x1d,0x92,0x92,0x11,0x55,0x55,0x55,0x5a,0x50,0x59
+encrypted:
+    db 0x17,0x00,0x00,0x00,0x55,0x1d,0x64,0x95,0x1d,0x92,0x95,0x69,0x55,0x55,0x55,0x1d,0x64,0xaa,0x1d,0x92,0x92,0x11,0x55,0x55,0x55,0x5a,0x50,0x59
 
-; ; xor_procedure:
-; ;     mov rdi, encrypted
-
-; ;     mov ecx, DWORD [rdi] ; DATA SIZE
-; ;     add rdi, 4
-    
-; ;     mov al, BYTE [rdi]      ; KEY
-; ;     inc rdi
-
-
-; ;     xor_routine:
-; ;         xor BYTE [rdi], al
-
-; ;         inc rdi
-
-; ;         loop xor_routine
-
-; ;     call encrypted + 6
-
-; ;     ret
-
-; ; ------------------------------------ 
-; ; Arguments: 
-; ; rdi - address of encrypted_data
-; ; ------------------------------------
 ; xor_procedure:
+;     mov rdi, encrypted
 
-;     push rcx
-;     push rax
-;     push rdi
-
-;     mov ecx, DWORD [rdi]                    ; DATA SIZE
+;     mov ecx, DWORD [rdi] ; DATA SIZE
 ;     add rdi, 4
-
-;     push ecx
-
-;     mov al, BYTE[rdi]                       ; KEY
-;     inc rdi
-
-;     xor_routine_e:
-;         xor BYTE [rdi], al
-;         inc rdi
-
-;         loop xor_routine_e
     
-;     pop ecx
-;     pop rdi
-
-;     call rdi+6
-
-;     add rdi, 4
-
-;     add al, 1                               ; Need to update KEY but this time I need to make the value is never 0;
-;     mov BYTE[rdi], al           
+;     mov al, BYTE [rdi]      ; KEY
 ;     inc rdi
 
-;     xor_routine_d:
-;         xor BYTE[rdi], al
+
+;     xor_routine:
+;         xor BYTE [rdi], al
+
 ;         inc rdi
 
-;         loop xor_routine_d
+;         loop xor_routine
 
-;     pop rax
-;     pop rcx
+;     call encrypted + 6
+
+;     ret
+
+; ------------------------------------ 
+; Arguments: 
+; rdi - address of encrypted_data
+; ------------------------------------
+xor_procedure:
+
+    push rcx
+    push rax
+    push rdi
+
+    mov ecx, DWORD [rdi]                    ; DATA SIZE
+    add rdi, 4
+
+    push ecx
+
+    mov al, BYTE[rdi]                       ; KEY
+    inc rdi
+
+    xor_routine_e:
+        xor BYTE [rdi], al
+        inc rdi
+
+        loop xor_routine_e
+    
+    pop ecx
+    pop rdi
+
+    call rdi+6
+
+    add rdi, 4
+
+    add al, 1                               ; Need to update KEY but this time I need to make the value is never 0;
+    mov BYTE[rdi], al           
+    inc rdi
+
+    xor_routine_d:
+        xor BYTE[rdi], al
+        inc rdi
+
+        loop xor_routine_d
+
+    pop rax
+    pop rcx
 
 
 test_code:
@@ -149,17 +153,30 @@ test_code:
     push rdi
     push rax
 
+    message_code:
+        call chunk 
+        message db "data", 0
 
+    ; push 0x68732f6e69622f2f
+
+    chunk:
+    pop rsi
     xor rax, rax
     inc rax
 
     xor rdi, rdi
     inc rdi
 
-    mov rsi, 0x68732f6e69622f2f
-    mov rdx, 3
+    mov rdx, 4
 
     syscall
 
+    
+
     pop rax
     pop rdi
+
+    ret
+
+segment readable
+    
