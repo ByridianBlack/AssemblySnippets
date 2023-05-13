@@ -23,3 +23,17 @@ decrypts a label at run time and executes it.
 
 ## polyxor.asm
 
+Not a truly polyxor code but has some cool features. I can decrypt and then encrypt the run functions with a different key
+
+structure
+
+* data size
+* key
+* data
+
+For now I need to work on writing this back onto disk but the main concept this follows is you can't just dump everything all at once
+also because each function has its own code stub concurrent decryption is possible making analysis harder for many if 
+multithreading is enabled.
+
+Also got to test out that feature of storing a string right after a call instruction to push it onto the stack. Very useful in this case
+

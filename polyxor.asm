@@ -81,7 +81,7 @@ start:
 ; --------------------------------------------------------
 
 encrypted:
-    db 0x25, 0x0, 0x0, 0x0, 0x55, 0x02,0x05,0xbd,0x50,0x55,0x55,0x55,0x31,0x34,0x21,0x34,0x55,0x0b,0x1d,0x64,0x95,0x1d,0xaa,0x95,0x1d,0x64,0xaa,0x1d,0xaa,0x92,0x1d,0x92,0x97,0x51,0x55,0x55,0x55,0x5a,0x50,0x0d,0x0a,0x96
+    db 0x26, 0x0, 0x0, 0x0, 0x55, 0x02,0x05,0xbd,0x50,0x55,0x55,0x55,0x31,0x34,0x21,0x34,0x55,0x0b,0x1d,0x64,0x95,0x1d,0xaa,0x95,0x1d,0x64,0xaa,0x1d,0xaa,0x92,0x1d,0x92,0x97,0x51,0x55,0x55,0x55,0x5a,0x50,0x0d,0x0a,0x96
 
 
 ; ------------------------------------ 
@@ -104,17 +104,18 @@ xor_procedure:
     xor_routine_e:
         xor BYTE [rdi], al
         inc rdi
-
         loop xor_routine_e
 
-    pop rcx
+    pop rcx                                 ; still contains the DATA SIZE
     pop rdi
-
     push rdi
-    add rdi, 6
-    call rdi
 
+
+    add rdi, 5
+    call rdi
+    
     pop rdi
+    mov ecx, DWORD [rdi]
     add rdi, 4
 
     add al, 1                               ; Need to update KEY but this time I need to make the value is never 0;
@@ -133,35 +134,30 @@ xor_procedure:
 
 
 
-test_code:
+; test_code:
 
-
-    push rdi
+;     push rax
+;     push rdi
     
 
-    message_code:
-        call chunk 
-        message db "data", 0
-        ret
+;     message_code:
+;         call chunk 
+;         message db "data", 10 ,0
 
-    ; push 0x68732f6e69622f2f
+;     chunk:
+;     pop rsi
+;     xor rax, rax
+;     inc rax
 
-    chunk:
-    pop rsi
-    xor rax, rax
-    inc rax
+;     xor rdi, rdi
+;     inc rdi
 
-    xor rdi, rdi
-    inc rdi
+;     mov rdx, 5
 
-    mov rdx, 4
-
-    syscall
-    pop rdi
-    mov rsi, message_code
-    add rsi, 4
-    push rsi
-    ret
+;     syscall
+;     pop rdi
+;     pop rax
+;     ret
     
 
     
